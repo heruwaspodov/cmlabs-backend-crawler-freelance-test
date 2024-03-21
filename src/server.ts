@@ -1,7 +1,12 @@
 import express from 'express';
 import { Response } from '@/types/response'
+import { crawler } from "./crawler";
+import bodyParser from "body-parser";
 
 const app = express();
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
+
 const port = 3000;
 
 app.get('/', (req, res) => {
@@ -12,6 +17,8 @@ app.get('/', (req, res) => {
     }
     return res.status(200).json(data)
 });
+
+app.post('/crawl', crawler);
 
 app.all('*', (req, res) => {
     const data:Response = {
