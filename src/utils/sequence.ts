@@ -6,7 +6,7 @@ export const crawlSequence = async (page: puppeteer.Page, url: string, filePath:
         const scrollAmount = 1000
 
         await page.evaluate((scrollAmount: number) => {
-            window.scrollBy(0, scrollAmount);
+            window.scrollBy(0, scrollAmount)
         }, scrollAmount)
 
 

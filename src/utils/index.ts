@@ -29,6 +29,7 @@ export const crawl = async (url: string, filePath: string) => {
             default:
                 const htmlContent = await page.content()
                 await writeContent(filePath, htmlContent)
+                console.log('HTML saved successfully!')
         }
 
         await browser.close()
