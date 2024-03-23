@@ -1,30 +1,39 @@
-import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
+import { crawlCmlabs } from "./cmlabs";
+import { crawlSequence } from "./sequence";
+import { crawlTokopedia } from "./tokopedia";
+import { getDomainName } from "./domain";
+import { writeContent } from "./file";
 
-export const crawlSite = async (url: string, filePath: string) => {
+export const crawl = async (url: string, filePath: string) => {
     try {
-        const browser = await puppeteer.launch({headless: false});
-        const page = await browser.newPage();
-        // await page.setDefaultNavigationTimeout(0);
-        await page.goto(url);
+        const browser = await puppeteer.launch({headless: false})
+        const page = await browser.newPage()
+        await page.setViewport({width: 1920, height: 1080, deviceScaleFactor: 1})
+        await page.setJavaScriptEnabled(true)
+        await page.setDefaultNavigationTimeout(0)
+        await page.goto(url, {waitUntil: "networkidle0"})
 
-        console.log(page)
-        await page.waitForSelector('.cmlabs', { timeout: 0 });
-        const htmlContent = await page.content();
+        const domain = getDomainName(url)
 
-        console.log('html', htmlContent)
+        switch (domain) {
+            case 'cmlabs.co':
+                await crawlCmlabs(page, url, filePath)
+                break
+            case 'sequence.day':
+                await crawlSequence(page, url, filePath)
+                break
+            case 'tokopedia.com':
+                await crawlTokopedia(page, url, filePath)
+                break
+            default:
+                const htmlContent = await page.content()
+                await writeContent(filePath, htmlContent)
+        }
 
-
-        fs.writeFileSync(filePath, htmlContent);
-
-        await browser.close();
-
-
-        return true
+        await browser.close()
     } catch (error) {
         console.error('Error crawling website:', error);
         return false;
     }
 }
-
-//~/Library/Application Support/Google/Chrome

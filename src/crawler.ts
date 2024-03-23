@@ -1,16 +1,24 @@
 import { Request as Req, Response as Res } from 'express';
 import { Response } from '@/types/response'
-import { crawlSite } from "./utils";
+import { processDirectory } from "./utils/file";
+import { getDomainName } from "./utils/domain";
+import { crawl } from "./utils";
 
 export const crawler = async (req: Req, res: Res) => {
-    let post       = req.body;
+    const post = req.body;
+    const dir = './files/' + getDomainName(post.link)
+    const path = dir + '/index.html'
 
-    await crawlSite(post.link, './files/result.html')
+    await processDirectory(dir)
+    await crawl(post.link, path)
 
     const data:Response = {
         status: true,
         code: 200,
-        data: post
+        data: {
+            url: post.link,
+            path: path
+        }
     }
     return res.status(200).json(data)
 }
